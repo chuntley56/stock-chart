@@ -9,7 +9,9 @@ class StockChart extends Component {
 
     this.state = {
       bid: '',
-      ask: ''
+      ask: '',
+      instrument: '',
+      popularity: ''
     };
   }
 
@@ -17,21 +19,28 @@ class StockChart extends Component {
     const stockQuoteUrl = 'https://api.robinhood.com/quotes/?symbols=FB';
     fetch(stockQuoteUrl)
      .then(data => {return data.json()})
-     .then(results => this.setState({ bid: results.results[0].bid_price, ask: results.results[0].ask_price}))
+     .then(results => this.setState({ bid: results.results[0].bid_price, ask: results.results[0].ask_price, instrument: results.results[0].instrument.split('instruments/')[1].replace(/\/$/, "")}))
      event.preventDefault();
   }
 
   componentDidUpdate() {
-    console.log(this.state.bid)
+    const popularityUrl = `https://api.robinhood.com/instruments/popularity/?ids=${this.state.instrument}`;
+    fetch(popularityUrl)
+     .then(data => {return data.json()})
+     .then(results => this.setState({ popularity: results.results.num_open_positions}))
+     event.preventDefault();
+    console.log(this.state.instrument)
   }
 
   render() {
-    const {bid, ask} = this.state;
+    const {bid, ask, instrument, popularity} = this.state;
     return (
       <div>
       <div>
       Bid: {bid}<br />
-      Ask: {ask}
+      Ask: {ask}<br />
+      Instrument: {instrument}<br />
+      Popularity: {popularity}
       </div>
       </div>
 
